@@ -89,8 +89,14 @@ class RealmAPI implements RealmApiInterface {
       );
 
       talker.info("Opened realm in catch ");
-      // realm = Realm(config);
+      realm = await Realm.open(config, cancellationToken: token,
+          onProgressCallback: (syncProgress) {
+        if (syncProgress.progressEstimate == 1.0) {
+          talker.info('All bytes transferred!');
+        }
+      });
       // Realm.logger.level = RealmLogLevel.trace;
+      await realm!.subscriptions.waitForSynchronization();
       await updateSubscription(branchId, businessId);
     }
     return this;
