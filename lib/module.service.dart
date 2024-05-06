@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:realm_app/CronService.dart';
 import 'package:realm_app/RealmAPI.dart';
 import 'package:realm_app/realmInterface.dart';
 
@@ -10,5 +11,10 @@ abstract class ServicesModule {
     return await RealmAPI().configure(
       inTesting: bool.fromEnvironment('Test') == true,
     );
+  }
+
+  @LazySingleton()
+  CronService cron() {
+    return CronService();
   }
 }

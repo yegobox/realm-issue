@@ -1,4 +1,9 @@
+import 'dart:io';
+
+import 'package:realm_app/AppSecrets.dart';
 import 'package:realm_app/realmInterface.dart';
+import 'package:realm_app/realmModels.dart';
+import 'package:realm_app/schemas.dart';
 import 'package:realm_dart/src/realm_class.dart';
 
 import 'package:flutter/foundation.dart' as foundation;
@@ -14,10 +19,10 @@ class RealmAPI implements RealmApiInterface {
 
   @override
   Future<RealmApiInterface> configure({required bool inTesting}) async {
-    if (foundation.kDebugMode && !isAndroid) {
+    if (foundation.kDebugMode) {
       apihub = AppSecrets.apihubUat;
       commApi = AppSecrets.commApi;
-    } else if (foundation.kDebugMode && isAndroid) {
+    } else if (foundation.kDebugMode) {
       apihub = AppSecrets.apihubUat;
       commApi = AppSecrets.commApi;
     } else if (!foundation.kDebugMode) {
@@ -33,8 +38,7 @@ class RealmAPI implements RealmApiInterface {
       }
       config = Configuration.inMemory(realmModels);
       realm = Realm(config);
-    } else if (ProxyService.box.getBranchId() != null ||
-        ProxyService.box.getBusinessId() != null) {
+    } else {
       /// because most likely we will open the realm with sync after we opened in memory database
       /// then we need to close the one recently opened
       if (realm != null) {
@@ -50,17 +54,17 @@ class RealmAPI implements RealmApiInterface {
       final user = app.currentUser ??
           await app.logIn(Credentials.apiKey(AppSecrets.mongoApiSecret));
 
-      int? branchId = ProxyService.box.getBranchId() ?? 0;
-      int? businessId = ProxyService.box.getBusinessId() ?? 0;
+      int? branchId = 243;
+      int? businessId = 1642656;
       config = Configuration.flexibleSync(
         user,
         realmModels,
-        encryptionKey: ProxyService.box.encryptionKey().toIntList(),
+        encryptionKey:
+            "233,208,132,117,255,201,221,131,14,40,56,240,47,226,73,76,138,217,55,54,149,10,109,4,86,51,62,18,149,133,100,197,144,162,43,7,178,52,81,111,72,172,32,67,62,21,26,45,204,243,133,215,255,247,212,54,189,118,16,161,48,80,144,135"
+                .toIntList(),
         path: path,
         clientResetHandler: RecoverUnsyncedChangesHandler(
           onBeforeReset: (beforeResetRealm) {
-            log("reset requested here..");
-
             ///which the SDK invokes prior to the client reset.
             ///You can use this callback to notify the user before the reset begins.
           },
@@ -72,47 +76,22 @@ class RealmAPI implements RealmApiInterface {
               (usedSize.toDouble() / totalSize.toDouble()) < 0.5;
         }),
       );
-      // realm = await Realm.open(config);
-      // CancellationToken token = CancellationToken();
 
-      // Cancel the open operation after 30 seconds.
-      // Alternatively, you could display a loading dialog and bind the cancellation
-      // to a button the user can click to stop the wait.
-      // Future<void>.delayed(
-      //   const Duration(seconds: 30),
-      //   () => token.cancel(
-      //     CancelledException(
-      //       cancellationReason: "Realm took too long to open",
-      //     ),
-      //   ),
-      // );
-      // try {
-      //   if (await ProxyService.status.isInternetAvailable()) {
-      //     talker.info("Opened realm[1] with  internet access!");
-      //     realm = await Realm.open(config, cancellationToken: token,
-      //         onProgressCallback: (syncProgress) {
-      //       if (syncProgress.progressEstimate == 1.0) {
-      //         talker.info('All bytes transferred!');
-      //       }
-      //     });
-      //   } else {
-      //     talker.info("Opened realm[1] with no internet access!");
-      //     realm = Realm(config);
-      //   }
-      // } catch (e) {
-      //   talker.info("Opened realm in catch ");
-      //   realm = Realm(config);
-      // }
-      // talker.info("Opened realm in catch ");
-      realm = Realm(config);
+      CancellationToken token = CancellationToken();
+
+      Future<void>.delayed(
+        const Duration(seconds: 30),
+        () => token.cancel(
+          const CancelledException(
+            cancellationReason: "Realm took too long to open",
+          ),
+        ),
+      );
+
+      talker.info("Opened realm in catch ");
+      // realm = Realm(config);
       // Realm.logger.level = RealmLogLevel.trace;
       await updateSubscription(branchId, businessId);
-    } else {
-      //  open local database not synced one!
-      talker.info(
-          "opening the inMemory realm for the app to run on launch this is case where we don't have configuration necessary from the authenticated user!");
-      final config = Configuration.inMemory(realmModels);
-      realm = Realm(config);
     }
     return this;
   }
@@ -124,10 +103,11 @@ class RealmAPI implements RealmApiInterface {
 
   @override
   Future<String> dbPath() async {
+    int? branchId = 243;
+    int? businessId = 1642656;
     String fileName = "db_";
     final appDocsDirectory = await getApplicationDocumentsDirectory();
-    final int businessId = ProxyService.box.getBusinessId() ?? 0;
-    final int branchId = ProxyService.box.getBranchId() ?? 0;
+
     final realmDirectory = '${appDocsDirectory.path}/flipper-v4-' +
         branchId.toString() +
         "_" +
@@ -139,5 +119,18 @@ class RealmAPI implements RealmApiInterface {
     return "$realmDirectory/$fileName";
   }
 
-  updateSubscription(int branchId, int businessId) {}
+  updateSubscription(int branchId, int businessId) async {
+    if (realm == null) return;
+    final variant = realm!.query<Variant>(r'branchId == $0', [branchId]);
+    final stock = realm!.query<Stock>(r'branchId == $0', [branchId]);
+    await variant.subscribe(
+        name: "variant-${businessId}",
+        waitForSyncMode: WaitForSyncMode.always,
+        update: true);
+
+    await stock.subscribe(
+        name: "stock-${businessId}",
+        waitForSyncMode: WaitForSyncMode.always,
+        update: true);
+  }
 }

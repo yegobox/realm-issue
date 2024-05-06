@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:realm_app/locator.dart';
+import 'package:realm_app/proxy.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initDependencies(); // register getIt dependencies
+
+  // trigger realm to throw error
+  ProxyService.cron.schedule();
+
   runApp(const MyApp());
 }
 
