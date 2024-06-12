@@ -82,10 +82,11 @@ mixin IsolateHandler {
 
     await syncUnsynced(args);
 
-    // load all variants
-    List<Variant> variants = realm.all<Variant>().toList();
-    final talker = TalkerFlutter.init();
-    await realm.writeAsync(() async {
+    realm.writeAsync(() async {
+      // load all variants
+      List<Variant> variants = realm.all<Variant>().toList();
+      final talker = TalkerFlutter.init();
+      final variantToAdd = <Variant>[];
       for (Variant variant in variants) {
         if (!variant.ebmSynced) {
           try {
@@ -94,21 +95,22 @@ mixin IsolateHandler {
             talker.info("saving Variant on EBM server ${variant.tin}");
             await Future.delayed(Duration(seconds: 10));
             variant.ebmSynced = true;
-            realm.add<Variant>(variant, update: true);
+            variantToAdd.add(variant);
           } catch (e, s) {
             talker.info("failed to save Variant on EBM server");
             talker.error(s);
 
             variant.ebmSynced = false;
 
-            realm.add<Variant>(variant, update: true);
+            variantToAdd.add(variant);
           }
         }
       }
-    });
-    // load all stock
-    List<Stock> stocks = realm.all<Stock>().toList();
-    realm.writeAsync(() async {
+
+      // load all stock
+      List<Stock> stocks = realm.all<Stock>().toList();
+      final stockToAdd = <Stock>[];
+
       for (Stock stock in stocks) {
         if (!stock.ebmSynced) {
           try {
@@ -116,16 +118,19 @@ mixin IsolateHandler {
               r'id == $0 AND deletedAt == nil',
               [stock.variantId],
             ).first;
+
             stock.tin = tinNumber;
             stock.bhfId = bhfId;
             await Future.delayed(Duration(seconds: 10));
             stock.ebmSynced = true;
-            realm.add<Stock>(stock, update: true);
+
+            stockToAdd.add(stock);
           } catch (e, s) {
             talker.error(s);
 
             stock.ebmSynced = false;
-            realm.add<Stock>(stock, update: true);
+
+            stockToAdd.add(stock);
           }
         }
       }
