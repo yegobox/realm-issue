@@ -135,7 +135,7 @@ jobs:
       - name: Configure Missing files
         run: |
           echo "$APPSECRETS" >> lib/AppSecrets.dart
-          git config --global core.autocrlf false
+          print("APPSECRETS: $APPSECRETS");
         env:
           INDEX: ${{ secrets.APPSECRETS }}
       - run: flutter doctor -v
