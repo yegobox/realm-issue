@@ -146,6 +146,7 @@ jobs:
         env:
           VERSION: ${{ github.sha }} # Or use a semantic versioning scheme
         run: |
+          cd apps/flipper
           echo "## Release Notes" >> release_notes.txt
           echo " - New features..." >> release_notes.txt
           echo " - Bug fixes..." >> release_notes.txt
