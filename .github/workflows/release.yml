@@ -132,13 +132,14 @@ jobs:
         with:
           flutter-version: "3.22.2"
           channel: stable
+      - name: Configure Missing files
+        run: |
+          echo "$APPSECRETS" >> lib/AppSecrets.dart
+          git config --global core.autocrlf false
+        env:
+          INDEX: ${{ secrets.APPSECRETS }}
       - run: flutter doctor -v
-
-      - name: submodule init
-        run: git submodule update --init
-      
       - run: |
-          
           dart run msix:create -v --install-certificate false
       - name: Configure Release (optional)
         env:
