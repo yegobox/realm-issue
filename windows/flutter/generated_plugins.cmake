@@ -3,9 +3,30 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  connectivity_plus
+  desktop_webview_auth
+  device_type
+  file_selector_windows
+  firebase_auth
+  firebase_core
+  firebase_storage
+  flutter_localization
+  flutter_window_close
+  geolocator_windows
+  local_auth_windows
+  local_notifier
+  permission_handler_windows
+  printing
   realm
+  screen_retriever
+  sentry_flutter
   share_plus
+  smart_auth
+  system_theme
+  tray_manager
   url_launcher_windows
+  window_manager
+  window_size
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
