@@ -140,6 +140,7 @@ jobs:
           APPSECRETS: ${{ secrets.APPSECRETS }}
       - run: flutter doctor -v
       - run: |
+          cd apps/flipper
           dart run msix:create -v --install-certificate false
       - name: Configure Release (optional)
         env:
