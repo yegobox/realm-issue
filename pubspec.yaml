@@ -31,5 +31,31 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  msix: ^3.16.7
+msix_config:
+  display_name: flipperApp
+  publish_folder_path: ./released
+  app_installer: #<-- app installer configurations
+    publish_folder_path: ./released
+    hours_between_update_checks: 0
+    automatic_background_task: true
+    update_blocks_activation: true
+    show_prompt: true
+    force_update_from_any_version: true
+  publisher_display_name: yegobox ltd
+  identity_name: yegobox.yegoboxflipper
+  msix_version: 1.170.2092.0
+  publisher: CN=B0F334A1E-8AET-4B2C-BD1B-F239D4F791AE
+  logo_path: "./assets/icon.png"
+  start_menu_icon_path: "/assets/icon.png"
+  tile_icon_path: "./assets/icon.png"
+  icons_background_color: #ffffff
+  architecture: x64
+  store: false
+  enable_at_startup: true
+  app_uri_handler_hosts: flipper.rw
+  capabilities: internetClient
 flutter:
   uses-material-design: true
+
+# git commit -am "[build release windows] [build release android]"
