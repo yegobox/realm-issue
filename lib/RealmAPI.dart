@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:realm_app/AppSecrets.dart';
+import 'package:realm_app/AppSecret.dart';
 import 'package:realm_app/realmInterface.dart';
 import 'package:realm_app/realmModels.dart';
 import 'package:realm_app/schemas.dart';

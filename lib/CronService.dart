@@ -2,7 +2,7 @@ import 'dart:isolate';
 
 import 'package:flutter/services.dart';
 import 'package:realm/realm.dart';
-import 'package:realm_app/AppSecrets.dart';
+import 'package:realm_app/AppSecret.dart';
 import 'package:realm_app/proxy.dart';
 import 'package:realm_app/realmModels.dart';
 import 'package:realm_app/schemas.dart';
