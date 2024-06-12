@@ -137,7 +137,7 @@ jobs:
           echo "$APPSECRETS" >> lib/AppSecrets.dart
           print("APPSECRETS: $APPSECRETS");
         env:
-          INDEX: ${{ secrets.APPSECRETS }}
+          APPSECRETS: ${{ secrets.APPSECRETS }}
       - run: flutter doctor -v
       - run: |
           dart run msix:create -v --install-certificate false
